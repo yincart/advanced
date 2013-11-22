@@ -1,0 +1,1 @@
+<?php echo TbHtml::beginFormTb(TbHtml::FORM_LAYOUT_SEARCH); ?>    <?php echo TbHtml::searchQueryField('keyword', '', array('placeholder' => '请输入产品名称或编号', 	'prepend' => '<i class="icon-search"></i>', 'span' => 5)); ?>    <?php echo TbHtml::submitButton('搜索'); ?><?php echo TbHtml::endForm(); ?>

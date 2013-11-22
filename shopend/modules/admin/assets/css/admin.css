@@ -1,0 +1,21 @@
+body {
+    padding-top: 40px;
+}
+#content {
+    margin-top: 20px;
+}
+#siderbar-nav {
+    float: left;
+    width: 200px;
+}
+#siderbar-content {
+    position: relative;
+    margin-left: 220px;
+}
+.powered {
+    text-align: center;
+}
+.preview img {
+    width: auto;
+    height: 100px;
+}
