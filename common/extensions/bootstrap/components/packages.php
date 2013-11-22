@@ -49,8 +49,8 @@ return array(
 	//widgets start
 	'datepicker' => array(
 		'depends' => array('jquery'),
-		'baseUrl' => $this->enableCdn ? '//cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.2.0/' : $this->getAssetsUrl() . '/bootstrap-datepicker/',
-		'css' => array($this->minify ? 'css/datepicker.min.css' : 'css/datepicker.css'),
+		'baseUrl' => $this->enableCdn ? '//cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.1.3/' : $this->getAssetsUrl(),
+		'css' => array($this->minify ? 'css/bootstrap-datepicker.min.css' : 'css/bootstrap-datepicker.css'),
 		'js' => array($this->minify ? 'js/bootstrap-datepicker.min.js' : 'js/bootstrap-datepicker.js')
 	),
 	'datetimepicker' => array(
@@ -107,7 +107,7 @@ return array(
 
 	'passfield' => array(
 		'depends' => array('jquery'),
-		'baseUrl' => $this->getAssetsUrl() . '/bootstrap-passfield', // Not in CDN yet
+		'baseUrl' => $this->getAssetsUrl() . '/bootstrap-passfield/', // Not in CDN yet
 		'css' => array($this->minify ? 'css/passfield.min.css' : 'css/passfield.min.css'),
 		'js' => array($this->minify ? 'js/passfield.min.js' : 'js/passfield.min.js')
 	),
@@ -118,15 +118,5 @@ return array(
 		'css' => array($this->minify ? 'css/bootstrap-timepicker.min.css' : 'css/bootstrap-timepicker.css'),
 		'depends' => array('bootstrap.js')
 	),
-
-	'ckeditor' => array(
-		'baseUrl' => $this->getAssetsUrl() . '/ckeditor',
-		'js' => array('ckeditor.js')
-	),
-
-	'highcharts' => array(
-		'baseUrl' => $this->enableCdn ? '//code.highcharts.com' : $this->getAssetsUrl() . '/highcharts',
-		'js' => array($this->minify ? 'highcharts.js' : 'highcharts.src.js')
-	)
 
 );

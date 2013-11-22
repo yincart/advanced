@@ -9,7 +9,7 @@ $this->menu = array(
 );
 
 //dump($form);
-echo $form;
+//echo $form;
 ?>
 <h3>管理团购商品</h3>
 

@@ -94,13 +94,6 @@ class TbRedactorJS extends CInputWidget
 			}
 		}
 
-		$options = $this->editorOptions
-			? CJavaScript::encode($this->editorOptions)
-			: '';
-
-		$assets->registerScript(
-			uniqid(__CLASS__ . '#', true),
-			"jQuery('{$this->selector}').redactor({$options});"
-		);
+		Yii::app()->bootstrap->registerRedactor($this->selector, $this->editorOptions);
 	}
 }

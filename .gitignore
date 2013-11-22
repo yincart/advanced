@@ -1,11 +1,11 @@
-/nbproject/private/
 /frontend/www/assets/
 /backend/www/assets/
-/frontend/www/upload/
-/old/
+/shopend/www/assets/
 /backend/runtime/
 /frontend/runtime/
+/shopend/www/runtime/
+/frontend/www/upload/
 /upload/
-/shopend/www/assets/
 /nbproject
-.idea/
+/old/
+/.idea/

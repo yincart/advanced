@@ -71,16 +71,10 @@
                         data:data,
                         success:function(){
                         grid.removeClass('grid-view-loading');
-                        },
-                        complete:function(){
-                            if($.isFunction(callback))
-                            {
-                                callback(sortOrder);
-                            }
                         }
                     });
                 }
-                else if($.isFunction(callback))
+                if($.isFunction(callback))
                 {
                     callback(sortOrder);
                 }

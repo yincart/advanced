@@ -1,5 +1,7 @@
 <?php
 
+Yii::import("xupload.models.XUploadForm");
+
 class ItemController extends Controller
 {
 
@@ -9,15 +11,49 @@ class ItemController extends Controller
      */
     public $layout = '//layouts/mall';
 
+//     public function actions() {
+//	return array(
+//	    'upload' => array(
+//		'class' => 'xupload.actions.XUploadAction',
+//		'path' => Yii::app()->getBasePath() . "/../upload/item/image",
+//		"publicPath" => 'http://img.'.F::sg('site', 'domain'). "/item/image",
+//	));
+//    }
+
     /**
      * @return array action filters
      */
     public function filters()
     {
         return array(
-            array('auth.filters.AuthFilter'),
+            'accessControl', // perform access control for CRUD operations
         );
     }
+
+    /**
+     * Specifies the access control rules.
+     * This method is used by the 'accessControl' filter.
+     * @return array access control rules
+     */
+//    public function accessRules() {
+//	return array(
+//	    array('allow', // allow all users to perform 'index' and 'view' actions
+//		'actions' => array('index', 'view'),
+//		'users' => array('*'),
+//	    ),
+//	    array('allow', // allow authenticated user to perform 'create' and 'update' actions
+//		'actions' => array('create', 'update', 'getPropValues', 'bulk'),
+//		'users' => array('@'),
+//	    ),
+//	    array('allow', // allow admin user to perform 'admin' and 'delete' actions
+//		'actions' => array('list', 'delete', 'getPropValues', 'bulk', 'upload', 'itemImgDel'),
+//		'users' => array('@'),
+//	    ),
+//	    array('deny', // deny all users
+//		'users' => array('*'),
+//	    ),
+//	);
+//    }
 
     /**
      * Displays a particular model.
@@ -31,17 +67,17 @@ class ItemController extends Controller
     }
 
     /**
-     * actionUpload
-     *
-     * @access public
-     * @return void
+     * upload images
+     * @throws CHttpException
+     * @author milkyway(yhxxlm@gmail.com)
      */
-    public function actionUpload($token)
+    public function actionUpload()
     {
         Yii::import("xupload.models.XUploadForm");
         //Here we define the paths where the files will be stored temporarily
-        $path = realpath(Yii::app()->getBasePath() . "/../upload/store") . "/0/";
-        $publicPath = 'http://' . F::sg('site', 'imageDomain') . "/store/0/";
+        //remove realpath
+        $path = Yii::app()->getBasePath() . "/../upload/store/" . $_SESSION['store']['store_id'] . "/item/image" . "/";
+        $publicPath = 'http://' . F::sg('site', 'imageDomain') . "/store/" . $_SESSION['store']['store_id'] . "/item/image/";
 
         if (!file_exists($path)) {
             mkdir($path, 0777, true);
@@ -51,6 +87,7 @@ class ItemController extends Controller
         if (!file_exists($path)) {
             mkdir($path, 0777, true);
         }
+
 
         //This is for IE which doens't handle 'Content-type: application/json' correctly
         header('Vary: Accept');
@@ -74,38 +111,31 @@ class ItemController extends Controller
         } else {
             $model = new XUploadForm;
             $model->file = CUploadedFile::getInstance($model, 'file');
-            //We check that the file was successfully uploaded
+//We check that the file was successfully uploaded
             if ($model->file !== null) {
-                $file_array = array('jpg', 'png', 'gif');
-                if (!in_array($model->file->getExtensionName(), $file_array)) {
-//                    header('HTTP/1.1 status 400 acceptFileTypes');
-                    echo json_encode(array(
-                        array("error" => 'acceptFileTypes'),
-                    ));
-                    return;
-                }
-                //Grab some data
+//Grab some data
                 $model->mime_type = $model->file->getType();
                 $model->size = $model->file->getSize();
                 $model->name = $model->file->getName();
-                //(optional) Generate a random name for our file
+//(optional) Generate a random name for our file
+
 
                 $filename = date("YmdHis") . '_' . rand(10000, 99999);
                 $filename .= "." . $model->file->getExtensionName();
-                //$filename =  $ymd . '/' . $filename;
+//		$filename =  $ymd . '/' . $filename;
 
                 if ($model->validate()) {
-                    //Move our file to our temporary dir
+//Move our file to our temporary dir
                     $model->file->saveAs($path . $filename);
                     chmod($path . $filename, 0777);
-                    //here you can also generate the image versions you need
-                    //using something like PHPThumb
-                    //Now we need to save this path to the user's session
-
-                    $userImages = Yii::app()->cache->get('images_' . $token);
-
-                    $userImages = $userImages ? $userImages : array();
-
+//here you can also generate the image versions you need 
+//using something like PHPThumb
+//Now we need to save this path to the user's session
+                    if (Yii::app()->user->hasState('images')) {
+                        $userImages = Yii::app()->user->getState('images');
+                    } else {
+                        $userImages = array();
+                    }
                     $userImages[] = array(
                         "path" => $path . $filename,
                         //the same file or a thumb version that you generated
@@ -116,11 +146,11 @@ class ItemController extends Controller
                         'mime' => $model->mime_type,
                         'name' => $model->name,
                     );
-                    Yii::app()->cache->set('images_' . $token, $userImages, 60 * 60 * 2);
+                    Yii::app()->user->setState('images', $userImages);
 
-                    //Now we need to tell our widget that the upload was succesfull
-                    //We do so, using the json structure defined in
-                    //https://github.com/blueimp/jQuery-File-Upload/wiki/Setup
+//Now we need to tell our widget that the upload was succesfull
+//We do so, using the json structure defined in
+// https://github.com/blueimp/jQuery-File-Upload/wiki/Setup
                     echo json_encode(array(array(
                         "name" => $model->name,
                         "type" => $model->mime_type,
@@ -134,7 +164,7 @@ class ItemController extends Controller
                         "delete_type" => "POST"
                     )));
                 } else {
-                    //If the upload failed for some reason we log some data and let the widget know
+//If the upload failed for some reason we log some data and let the widget know
                     echo json_encode(array(
                         array("error" => $model->getErrors('file'),
                         )));
@@ -147,61 +177,6 @@ class ItemController extends Controller
         }
     }
 
-    public function actionDelPicture()
-    {
-        $model = ProductPictures::model()->findByAttributes(array('img_id' => $_POST['img_id'], 'store_id' => 0));
-        if ($model)
-            $model->delete();
-    }
-
-    /**
-     * actionItemImgDel
-     *
-     * @access public
-     * @return void
-     */
-    public function actionItemImgDel()
-    {
-        $rs = array(
-            'status' => 0,
-            'msg' => '',
-            'data' => array(),
-        );
-
-        if (!empty($_GET['img_id'])) {
-            $model = ItemImg::model()->find('img_id = :img_id', array(':img_id' => $_GET['img_id']));
-            if (!empty($model)) {
-                if ($model->delete()) {
-                    $path = Yii::getPathOfAlias("root") . '/upload/item/image/' . $model->url;
-                    @unlink($path);
-
-                    //对其它图片进行重新排序
-                    if (!empty($model->item_id)) {
-                        $criteria = new CDbCriteria;
-                        $criteria->compare('t.item_id', $model->item_id);
-                        $criteria->order = 'position DESC';
-                        $models = ItemImg::model()->findAll($criteria);
-
-                        foreach ($models as $k1 => $v1) {
-                            $model->position = $k1;
-                            $model->save();
-                        }
-                    }
-
-                    $rs = array(
-                        'status' => 1,
-                        'msg' => '',
-                        'data' => array(),
-                    );
-                }
-            } else {
-                $rs['msg'] = '数据不存在';
-            }
-        }
-
-        echo YcStringHelper::jsonEncode($rs);
-    }
-
     /**
      * Creates a new model.
      * If creation is successful, the browser will be redirected to the 'view' page.
@@ -209,59 +184,94 @@ class ItemController extends Controller
     public function actionCreate()
     {
         Yii::import("xupload.models.XUploadForm");
-        $upload = new XUploadForm;
         $model = new Item('create');
-        // Uncomment the following line if AJAX validation is needed
-        // $this->performAjaxValidation($model);
+        $upload = new XUploadForm;
+        $image = new ItemImg;
+// Uncomment the following line if AJAX validation is needed
+// $this->performAjaxValidation($model);
         $action = 'item';
         if (isset($_POST['Item'])) {
             $model->attributes = $_POST['Item'];
-            $model->sn = 'YC' . date('Ymd') . mt_rand(10000, 99999);
+//	    $model->sn = 'YC' . date('Ymd') . mt_rand(10000, 99999);
+            $model->store_id = $_SESSION['store']['store_id'];
             if ($_POST['Item']['props']) {
-                foreach ($_POST['Item']['props'] as $key => $value) {
-                    $p = ItemProp::model()->findByPk($key);
-
-                    if ($p->type == 'multiCheck') {
-                        $values = implode($value, ',');
-                        $p_arr[] = $key . ':' . $values;
-                        foreach ($value as $kk => $vv) {
-                            $v = PropValue::model()->findByPk($vv);
-                            $value_name[] = $v->value_name;
-                        }
-                        $value_names = implode($value_name, ',');
-                        $v_arr[] = $p->prop_name . ':' . $value_names;
-                    } elseif ($p->type == 'optional') {
-                        $p_arr[] = $key . ':' . $value;
-                        $v = PropValue::model()->findByPk($value);
-                        $v_arr[] = $p->prop_name . ':' . $v->value_name;
-                    } elseif ($p->type == 'input') {
-                        //如果是文本框输入的话 不纳入搜索
-                        //也就不纳入到props里 只保存到prop_names里
-                        $p_arr[] = $key . ':' . $value;
-                        $v_arr[] = $p->prop_name . ':' . $value;
-                    }
-                }
-                $props = implode($p_arr, ';');
-                $model->props = $props;
-                $props_name = implode($v_arr, ';');
-                $model->props_name = $props_name;
+//		foreach ($_POST['Item']['props'] as $key => $value) {
+//		    $p = ItemProp::model()->findByPk($key);
+//		    
+//		    if ($p->type == 'multiCheck') {
+////			$values = implode($value, ',');
+//			$p_arr[] = $value;
+//			foreach ($value as $kk => $vv) {
+//			    $v = PropValue::model()->findByPk($vv);
+//			    $value_name[] = $v->value_name;
+//			}
+//			$value_names = implode($value_name, ',');
+//			$v_arr[] = $p->prop_name . ':' . $value_names;
+//		    } elseif ($p->type == 'optional') {
+//			$v_o = $value ? explode(':', $value) : 0;
+//			$p_arr[] = $key . ':' .($v_o != 0 ? $v_o[1] : 0);
+//			$v = PropValue::model()->findByPk($value);
+//			$v_arr[] = $p->prop_name . ':' . $v->value_name;
+//		    } elseif ($p->type == 'input') {
+//		    //如果是文本框输入的话 不纳入搜索
+//		    //也就不纳入到props里 只保存到prop_names里
+//			$p_arr[] = $key . ':' . $value;
+//			$v_arr[] = $p->prop_name . ':' . $value;
+//		    }
+//		}
+//		$props = implode($p_arr, ';');
+                $model->props = CJSON::encode($_POST['Item']['props']);
+//		$props_name = implode($v_arr, ';');
+//		$model->props_name = $props_name;
             }
-            if ($model->save()) {
-                if (isset($_POST['ItemImg']) && count($_POST['ItemImg'])) {
-                    foreach ($_POST['ItemImg'] as $k1 => $v1) {
-                        $modelTmp = ItemImg::model()->find('img_id = :img_id', array(':img_id' => $v1));
-                        $modelTmp->item_id = $model->item_id;
-                        $modelTmp->position = $k1;
-                        $modelTmp->save();
+
+            if ($_POST['Item']['skus']) {
+//			foreach ($_POST['Item']['skus'] as $s_key => $s_value) {
+//			    $skus[] = implode($s_value['props'], ';').';'.$s_value['quantity'].';'.$s_value['price'];
+//			}
+                $model->skus = CJSON::encode($_POST['Item']['skus']);
+//			$model->skus = implode($skus, ',');
+            }
+
+            $transaction = Yii::app()->db->beginTransaction();
+
+//	    print_r($_POST);
+//	    exit;
+            try {
+                if ($model->save()) {
+                    $skuIds = array();
+                    if ($_POST['Item']['skus']) {
+                        foreach ($_POST['Item']['skus']['table'] as $s_key => $s_value) {
+                            $sku = new Sku;
+                            $sku->item_id = $model->item_id;
+                            $sku->props = CJSON::encode(($s_value['props']));
+                            $sku->quantity = $s_value['quantity'];
+                            $sku->price = $s_value['price'];
+                            $sku->outer_id = $s_value['outer_id'];
+                            $sku->status = $s_value ? 'normal' : 'deleted';
+                            $sku->save();
+                            if ($sku->sku_id > 0) $skuIds[] = $sku->sku_id;
+                        }
                     }
+                    $transaction->commit();
+                    $skus_data = implode(",", $skuIds); //储存为淘宝sku[]格式。
+
+                    $sql = 'UPDATE {{item}} SET `skus_data`="' . $skus_data . '" WHERE item_id=' . $model->item_id;
+
+                    Yii::app()->db->createCommand($sql)->execute();
+
+                    $this->redirect(array('view', 'id' => $model->item_id));
                 }
-                $this->redirect(array('view', 'id' => $model->item_id));
+            } catch (Exception $e) {
+                $transaction->rollback();
+                Yii::app()->handleException($e);
             }
         }
 
         $this->render('create', array(
             'model' => $model,
-            'upload' => $upload,
+            'image' => $image,
+            'upload' => $upload
         ));
     }
 
@@ -272,63 +282,87 @@ class ItemController extends Controller
      */
     public function actionUpdate($id)
     {
-        Yii::import("xupload.models.XUploadForm");
-        $upload = new XUploadForm;
         $model = $this->loadModel($id);
-
         $model->scenario = 'update';
-        // Uncomment the following line if AJAX validation is needed
-        // $this->performAjaxValidation($model);
-        // Uncomment the following line if AJAX validation is needed
-        // $this->performAjaxValidation($model);
+        $upload = new XUploadForm;
+        $image = new ItemImg;
+// Uncomment the following line if AJAX validation is needed
+// $this->performAjaxValisdation($model);
+// Uncomment the following line if AJAX validation is needed
+// $this->performAjaxValidation($model);
         $action = 'item';
+
+        $skuIds = array();
+
         if (isset($_POST['Item'])) {
             $model->attributes = $_POST['Item'];
 
-            if ($_POST['Item']['props']) {
-                foreach ($_POST['Item']['props'] as $key => $value) {
-                    $p = ItemProp::model()->findByPk($key);
 
-                    if ($p->type == 'multiCheck') {
-                        $values = implode($value, ',');
-                        $p_arr[] = $key . ':' . $values;
-                        foreach ($value as $kk => $vv) {
-                            $v = PropValue::model()->findByPk($vv);
-                            $value_name[] = $v->value_name;
-                        }
-                        $value_names = implode($value_name, ',');
-                        $v_arr[] = $p->prop_name . ':' . $value_names;
-                    } elseif ($p->type == 'optional') {
-                        $p_arr[] = $key . ':' . $value;
-                        $v = PropValue::model()->findByPk($value);
-                        $v_arr[] = $p->prop_name . ':' . $v->value_name;
-                    } elseif ($p->type == 'input') {
-                        //如果是文本框输入的话 不纳入搜索
-                        //也就不纳入到props里 只保存到prop_names里
-                        $p_arr[] = $key . ':' . $value;
-                        $v_arr[] = $p->prop_name . ':' . $value;
-                    }
-                }
-                $props = implode($p_arr, ';');
-                $model->props = $props;
-                $props_name = implode($v_arr, ';');
-                $model->props_name = $props_name;
+            if ($_POST['Item']['props']) {
+
+                $model->props = CJSON::encode($_POST['Item']['props']);
+
             }
-            if ($model->save()) {
-                if (isset($_POST['ItemImg']) && count($_POST['ItemImg'])) {
-                    foreach ($_POST['ItemImg'] as $k1 => $v1) {
-                        $model = ItemImg::model()->find('img_id = :img_id', array(':img_id' => $v1));
-                        $model->position = $k1;
-                        $model->save();
+
+            if ($_POST['Item']['skus']) {
+                $model->skus = CJSON::encode($_POST['Item']['skus']);
+                foreach ($_POST['Item']['skus']['table'] as $s_key => $s_value) {
+                    if ($s_value['sku_id'] > 0) {
+                        $sku = Sku::model()->findByPk($s_value['sku_id']);
+                        $sku->props = CJSON::encode(($s_value['props']));
+                        $sku->quantity = $s_value['quantity'];
+                        $sku->price = $s_value['price'];
+                        $sku->outer_id = $s_value['outer_id'];
+                        $sku->status = $s_value ? 'normal' : 'deleted';
+                        $sku->save();
+                        $skuIds[] = $sku->sku_id;
+                    } else {
+                        $jsp = CJSON::encode(($s_value['props']));
+                        $sku = Sku::model()->findByAttributes(array("props" => $jsp, "item_id" => $model->item_id));
+                        if (!$sku) {
+                            $sku = new Sku;
+                            $sku->item_id = $model->item_id;
+                        }
+
+                        $sku->props = $jsp;
+                        $sku->quantity = $s_value['quantity'];
+                        $sku->price = $s_value['price'];
+                        $sku->outer_id = $s_value['outer_id'];
+                        $sku->status = $s_value ? 'normal' : 'deleted';
+                        $sku->save();
+                        if ($sku->sku_id > 0) $skuIds[] = $sku->sku_id;
+                    }
+
+
+                }
+
+                //删除
+                $rawData = Sku::model()->findAll('item_id = ' . $model->item_id);
+                $delArr = array();
+                foreach ($rawData as $k1 => $v1) {
+                    if (!in_array($v1->sku_id, $skuIds)) {
+                        $delArr[] = $v1->sku_id;
                     }
                 }
-                $this->redirect(array('view', 'id' => $model->item_id));
+
+                if (count($delArr)) {
+                    Sku::model()->updateAll(array("status" => "deleted"), 'sku_id IN (' . implode(', ', $delArr) . ')');
+                }
+            }
+
+
+            $model->skus_data = implode(",", $skuIds);
+
+            if ($model->save()) {
+
+                //$this->redirect(array('view', 'id' => $model->item_id));
             }
         }
 
         $this->render('update', array(
             'model' => $model,
-            'upload' => $upload,
+            'image' => $image,
+            'upload' => $upload
         ));
     }
 
@@ -336,6 +370,7 @@ class ItemController extends Controller
      * Deletes a particular model.
      * If deletion is successful, the browser will be redirected to the 'admin' page.
      * @param integer $id the ID of the model to be deleted
+     * @throws CHttpException
      */
     public function actionDelete($id)
     {
@@ -388,6 +423,8 @@ class ItemController extends Controller
      * Returns the data model based on the primary key given in the GET variable.
      * If the data model is not found, an HTTP exception will be raised.
      * @param integer the ID of the model to be loaded
+     * @return CActiveRecord
+     * @throws CHttpException
      */
     public function loadModel($id)
     {
@@ -646,7 +683,7 @@ class ItemController extends Controller
 //	foreach ($props_arr as $k => $v) {
 //	    $arr[] = explode(':', $v);
 //	    if(is_array($arr)){
-//
+//		
 //	    }
 //	}
 //	foreach ($newarr as $k => $v) {
@@ -753,6 +790,83 @@ EOF;
         }
     }
 
+    public function actionGetItemSpec()
+    {
+        $skus = $_POST['Item']['skus'];
+        foreach ($skus as $key => $value) {
+            $sku[] = $_POST['Item']['skus'][$key];
+        }
+        $options = CJavaScript::encode($sku);
+
+        echo json_encode($sku);
+//        $config = <<<EOD
+//           var array = {$options}
+//EOD;
+//$cs = Yii::app()->getClientScript();
+//        $cs->registerScript($config, CClientScript::POS_HEAD);
+//	$sku_count = count($sku);
+//	
+//	for($i=0;$i<$sku_count;$i++){
+//	   $sku =  $sku[$i];
+//	}
+//	$ch = $sku[0];
+//	$color = $sku[1];
+//	
+//	$ch = $_POST['Item']['props'][3];
+//	$color = $_POST['Item']['props'][4];
+//	$num = count($color);
+//	if (!$ch || !$color)
+//	    exit;
+//	foreach ($ch as $v) {
+//	    $v_list = PropValue::model()->findByPk($v);
+//	    $out .= "<div class='one'>
+//  	 <tr>
+//    <td rowspan=" . $num . "> $v_list->value_name </td> 
+//";
+//	    if ($color) {
+//		$i = 0;
+//		foreach ($color as $c) {
+//		    $c_list = PropValue::model()->findByPk($c);
+//		    if ($i == 0) {
+//			$out .=" 
+//			    <td> $c_list->value_name </td>
+//			    <td> <input name='price[]'></td>
+//			    <td> <input name='quantity[]'></td>
+//			    <td> <input name='outer_id[]'></td>
+//			   ";
+//		    } else {
+//			$out .="</tr>";
+//			$out .=" 
+//		  	<tr>
+//			    <td> $c_list->value_name </td>
+//			    <td> <input name='price[]'></td>
+//			    <td> <input name='quantity[]'></td>
+//			    <td> <input name='outer_id[]'></td>
+//			  </tr>";
+//		    }
+//		    $i++;
+//		}
+//	    }
+//	    $out .="</tr></div>";
+//	}
+//	echo <<<EOF
+//
+//<table class="table table-bordered">
+//  <tr>
+//    <td>尺寸</td>
+//    <td>颜色</td>
+//    <td style="width:100px">价格</td>
+//    <td style="width:100px">数量</td>
+//    <td style="width:100px">商家编码</td>
+//  </tr>
+//$out
+//  
+//</table>
+//EOF;
+//    }
+    }
+
+
     public function actionAjaxGetSkus()
     {
 
@@ -767,4 +881,5 @@ EOF;
 
         Yii::app()->end();
     }
+
 }

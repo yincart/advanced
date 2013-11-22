@@ -4,7 +4,7 @@ $this->breadcrumbs = array(
 );
 
 //dump($form);
-echo $form;
+//echo $form;
 ?>
 <h3>管理团购商家分店</h3>
 

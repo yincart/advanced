@@ -8,18 +8,6 @@ Thank you all
 
 Antonio Ramirez.
 
-## YiiBooster latest development alpha
-- **(enh)** Updated HighCharts to 3.0.6 (hijarian)
-- **(fix)** Now we can use Javascript function definitions in `TbHighCharts` and `TbRedactorJs` options. #696 (hijarian)
-- **(enh)** Now the source distribution will hold the user-level documentation for widgets in universal XML format, along with the examples in PHP. #692 (hijarian)
-- **(enh)** Updated CKEditor library to version 4.2.1 (hijarian)
-- **(enh)** Updated redactor js to version 9.1.5 (kullar84)
-- **(enh)** Updated X-Editable assets to version 1.5.0 (hijarian)
-- **(enh)** Updated Bootstrap Datepicker assets to version 1.2.0 (hijarian)
-- **(fix)** Fixed `TbDatePicker` so it loads locale files from package folder. #688 (hijarian)
-- **(fix)** Fix `TbDateTimePicker`, so it loads locale files from the package folder, fix `TbEditableField` to load required scripts for 'datetime' field type (adeg)
-- **(fix)** Fix for placeholder overwriting in TbInputInline::maskedTextField and TbInputInline::typeAheadField. #694 (hightman)
-
 ## YiiBooster version 2.0.0
 - **(enh)** Bootstrap DateRangePicker updated to 1.2, moment.js updated to 2.2.1 (Hrumpa)
 - **(fix)** Fixed incorrect spec for `moment.js` library package. #673 #672 (fleuryc)
