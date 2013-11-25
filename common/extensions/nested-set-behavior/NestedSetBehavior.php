@@ -1093,9 +1093,8 @@ class NestedSetBehavior extends CActiveRecordBehavior
      * @return string
      */
     public function getSelect($descendants, $select_name, $selected_id = 0, $name = 'name', $id = 'id', $separators = array('&nbsp;&nbsp;|--', '&nbsp;&nbsp;|--', '&nbsp;&nbsp;|--', '&nbsp;&nbsp;|--')) {
-        //array('&nbsp;&nbsp;?', '&nbsp;&nbsp;?', '&nbsp;&nbsp;?', '&nbsp;&nbsp;&nbsp;&nbsp;')) {
-        $id = str_replace(']', '', str_replace('[', '_', $select_name));
-        $html = '<select id="' . $id . '" name="' . $select_name . '">';
+        $select_id = str_replace(']', '', str_replace('[', '_', $select_name));
+        $html = '<select id="' . $select_id . '" name="' . $select_name . '">';
         $level = 1;
         $prefix = array('');
         foreach ($descendants as $n => $descendant) {
@@ -1110,7 +1109,11 @@ class NestedSetBehavior extends CActiveRecordBehavior
             }
             $descendant_name = implode('', array_slice($prefix, 0, $descendant->level - $level)) . $descendant_name . ' ' . $descendant->{$name};
             $selected = $selected_id && $selected_id == $descendant->{$id} ? ' selected="selected"' : '';
-            $html .= '<option value="' . $descendant->{$id} . '"' . $selected . '>' . $descendant_name . '</option>';
+            if ($descendant->isLeaf()) {
+                $html .= '<option value="' . $descendant->{$id} . '"' . $selected . '>' . $descendant_name . '</option>';
+            } else {
+                $html .= '<optgroup label="' . $descendant_name . '"></optgroup>';
+            }
         }
         $html .= '</select>';
         return $html;

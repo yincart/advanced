@@ -507,8 +507,8 @@ class Item extends CActiveRecord
     public function addImages()
     {
         //If we have pending images
-        if (Yii::app()->user->hasState('images')) {
-            $userImages = Yii::app()->user->getState('images');
+        if (Yii::app()->user->hasState('images_' . $_POST['token'])) {
+            $userImages = Yii::app()->user->getState('images_' . $_POST['token']);
             //Resolve the final path for our images
 //	    $path = Yii::app()->getBasePath() . "/../images/uploads/";
 //	    $path = realpath(Yii::app()->getBasePath() . "/../upload/item/image") . "/";
@@ -545,7 +545,7 @@ class Item extends CActiveRecord
                 }
             }
             //Clear the user's session
-            Yii::app()->user->setState('images', null);
+            Yii::app()->user->setState('images_' . $_POST['token'], null);
         }
     }
 

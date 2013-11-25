@@ -10,8 +10,9 @@ $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
     'htmlOptions' => array('enctype' => 'multipart/form-data', 'class' => 'form-horizontal'),
 //    'type' => 'horizontal',
 ));
+$token = $model->isNewRecord ? md5(time() . rand(1, 1000)) : md5($model->item_id);
+echo CHtml::hiddenField('token', $token);
 ?>
-
 
 <?php echo TbHtml::alert(TbHtml::ALERT_COLOR_INFO, '<p class="help-block">带 <span class="required">*</span> 的字段为必填项.</p>'); ?>
 <?php $this->widget('bootstrap.widgets.TbTabs', array(
@@ -21,7 +22,7 @@ $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
         array('label' => '其他信息', 'content' => $this->renderPartial("_form_other", array("model" => $model, 'form' => $form), true)),
         array('label' => '商品类型', 'content' => $this->renderPartial("_form_type", array("model" => $model, 'form' => $form), true)),
         array('label' => '商品分类', 'content' => $this->renderPartial("_form_categories", array("model" => $model, 'form' => $form), true)),
-        array('label' => '商品图片', 'content' => $this->renderPartial("_form_image", array('image' => $image, 'form' => $form, 'upload' => $upload, 'id' => $id, 'item' => $model), true)),
+        array('label' => '商品图片', 'content' => $this->renderPartial("_form_image", array('image' => $image, 'form' => $form, 'upload' => $upload, 'id' => $id, 'item' => $model, 'token' => $token), true)),
     ),
 )); ?>
 

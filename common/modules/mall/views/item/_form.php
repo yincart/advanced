@@ -7,6 +7,8 @@ $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
     'htmlOptions' => array('enctype' => 'multipart/form-data'),
     'type' => 'horizontal',
 ));
+$token = $model->isNewRecord ? md5(time() . rand(1, 1000)) : md5($model->item_id);
+echo CHtml::hiddenField('token', $token);
 ?>
 
 <div class="control-group"><p class="help-block">带 <span class="required">*</span> 的字段为必填项.</p></div>
@@ -21,7 +23,7 @@ $this->widget('bootstrap.widgets.TbTabs', array(
         array('label' => '详细描述', 'content' => $this->renderPartial("_form_desc", array("model" => $model, 'form' => $form), true)),
         array('label' => '其他信息', 'content' => $this->renderPartial("_form_other", array("model" => $model, 'form' => $form), true)),
         array('label' => '商品类型', 'content' => $this->renderPartial("_form_type", array("model" => $model, 'form' => $form), true)),
-        array('label' => '商品图片', 'content' => $this->renderPartial("_form_image", array('model' => $model, 'form' => $form, 'upload' => $upload), true)),
+        array('label' => '商品图片', 'content' => $this->renderPartial("_form_image", array('model' => $model, 'form' => $form, 'upload' => $upload, 'token' => $token), true)),
     ),
 ));
 ?>

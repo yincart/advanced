@@ -1,7 +1,7 @@
 <div class="container">
     <?php
     $this->widget('xupload.XUpload', array(
-        'url' => Yii::app()->createUrl("/mall/item/upload", array('token' => $model->item_id)),
+        'url' => Yii::app()->createUrl("/mall/item/upload", array('token' => $token)),
         'model' => $upload,
         'attribute' => 'file',
         'multiple' => true,

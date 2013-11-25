@@ -71,7 +71,7 @@ class ItemController extends Controller
      * @throws CHttpException
      * @author milkyway(yhxxlm@gmail.com)
      */
-    public function actionUpload()
+    public function actionUpload($token)
     {
         Yii::import("xupload.models.XUploadForm");
         //Here we define the paths where the files will be stored temporarily
@@ -131,8 +131,8 @@ class ItemController extends Controller
 //here you can also generate the image versions you need 
 //using something like PHPThumb
 //Now we need to save this path to the user's session
-                    if (Yii::app()->user->hasState('images')) {
-                        $userImages = Yii::app()->user->getState('images');
+                    if (Yii::app()->user->hasState('images_' . $token)) {
+                        $userImages = Yii::app()->user->getState('images_' . $token);
                     } else {
                         $userImages = array();
                     }
@@ -146,7 +146,7 @@ class ItemController extends Controller
                         'mime' => $model->mime_type,
                         'name' => $model->name,
                     );
-                    Yii::app()->user->setState('images', $userImages);
+                    Yii::app()->user->setState('images_' . $token, $userImages);
 
 //Now we need to tell our widget that the upload was succesfull
 //We do so, using the json structure defined in

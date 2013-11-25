@@ -1,7 +1,7 @@
 <div class="container">
     <?php
     $this->widget('xupload.XUpload', array(
-        'url' => Yii::app()->createUrl("/admin/item/upload", array("parent_id" => 1)),
+        'url' => Yii::app()->createUrl("/admin/item/upload", array('token' => $token)),
         'model' => $upload,
         'attribute' => 'file',
         'multiple' => true,
@@ -19,7 +19,6 @@
         foreach($images as $i) {
             echo CHtml::image('http://'.F::sg('site','imageDomain').'/store/'.$id.'/item/image/'.$i->url, '', array('style'=>'width:100px;padding-right:10px'));
         }
-
     }
     ?>
 </div>

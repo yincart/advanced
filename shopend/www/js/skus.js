@@ -207,7 +207,7 @@
 			$.ajax
 		    ({
 				type: "POST",
-				data: "item_id="+item_id,
+				data: {item_id:item_id,YII_CSRF_TOKEN:$("[name=YII_CSRF_TOKEN]").val()},
 				url: skus_url ,
 				dataType: "html",
 				success: function(res)
