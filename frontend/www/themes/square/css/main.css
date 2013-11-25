@@ -181,6 +181,41 @@ item view
     line-height: 150%;
 }
 
+.item-detail-key dt {
+    margin: 10px;
+    float: left;
+    clear: both;
+    width: 100px;
+}
+
+.item-detail-key ul {
+    margin-top: 5px;
+}
+
+.item-detail-key li {
+    margin: 10px 5px 5px 0;
+    float: left;
+}
+
+.item-detail-key li a {
+    color: #000000;
+    text-decoration: none;
+    border: solid 1px #AAAAAA;
+    padding: 4px 9px;
+}
+
+.item-detail-key li a:hover {
+    text-decoration: none;
+    cursor: pointer;
+    border: solid 1px #FF0000;
+    padding: 4px 9px;
+}
+
+.key-select a {
+    border: solid 2px #FF0000 !important;
+    padding: 3px 8px !important;
+}
+
 .tab-pane {
     /*padding: 20px;*/
 }
@@ -251,4 +286,8 @@ member center
 */
 .member-right-conent, .member-left-conent {
     margin: 0 0 20px 0;
+}
+
+.clearfix {
+    clear: both;
 }

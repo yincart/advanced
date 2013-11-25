@@ -36,7 +36,7 @@ return CMap::mergeArray(
         // @see http://www.yiiframework.com/doc/api/1.1/CApplication#basePath-detail
         'basePath' => dirname(__FILE__) . DIRECTORY_SEPARATOR . '..',
         'name' => 'Yincart店铺街',
-        'theme' => 'fashion',
+        'theme' => 'default',
         // set parameters
         'params' => $params,
         // preload components required before running applications

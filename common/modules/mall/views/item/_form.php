@@ -1,5 +1,8 @@
 <?php
-$action = item;
+$action = 'item';
+$base_url = 'http://' . F::sg('site', 'imageDomain');
+$id = isset($_SESSION['store']['store_id']) ? $_SESSION['store']['store_id'] : 0;
+$type = 'store';
 Yii::app()->getClientScript()->registerScript('editorparam', 'window.KEDITOR_PARAM = "action=' . $action . '"', CClientScript::POS_HEAD);
 //    Yii::app()->getClientScript()->registerScript('editorparam', 'window.KEDITOR_PARAM = "action=' . $action . '&id=' . $id . '"', CClientScript::POS_HEAD);
 $form = $this->beginWidget('bootstrap.widgets.TbActiveForm', array(
@@ -20,7 +23,7 @@ $this->widget('bootstrap.widgets.TbTabs', array(
     'placement' => 'above', // 'above', 'right', 'below' or 'left'
     'tabs' => array(
         array('label' => '基本信息', 'content' => $this->renderPartial("_form_base", array('model' => $model, 'form' => $form), true), 'active' => true),
-        array('label' => '详细描述', 'content' => $this->renderPartial("_form_desc", array("model" => $model, 'form' => $form), true)),
+        array('label' => '详细描述', 'content' => $this->renderPartial("_form_desc", array("model" => $model, 'form' => $form, 'action' => $action, 'base_url' => $base_url, 'id' => $id, 'type' => $type), true)),
         array('label' => '其他信息', 'content' => $this->renderPartial("_form_other", array("model" => $model, 'form' => $form), true)),
         array('label' => '商品类型', 'content' => $this->renderPartial("_form_type", array("model" => $model, 'form' => $form), true)),
         array('label' => '商品图片', 'content' => $this->renderPartial("_form_image", array('model' => $model, 'form' => $form, 'upload' => $upload, 'token' => $token), true)),

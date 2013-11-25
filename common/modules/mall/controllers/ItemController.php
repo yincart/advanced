@@ -76,8 +76,9 @@ class ItemController extends Controller
         Yii::import("xupload.models.XUploadForm");
         //Here we define the paths where the files will be stored temporarily
         //remove realpath
-        $path = Yii::app()->getBasePath() . "/../upload/store/" . $_SESSION['store']['store_id'] . "/item/image" . "/";
-        $publicPath = 'http://' . F::sg('site', 'imageDomain') . "/store/" . $_SESSION['store']['store_id'] . "/item/image/";
+        $store_id = isset($_SESSION['store']['store_id']) ? $_SESSION['store']['store_id'] : 0;
+        $path = Yii::app()->getBasePath() . "/../upload/store/" . $store_id . "/item/image" . "/";
+        $publicPath = 'http://' . F::sg('site', 'imageDomain') . "/store/" . $store_id . "/item/image/";
 
         if (!file_exists($path)) {
             mkdir($path, 0777, true);
